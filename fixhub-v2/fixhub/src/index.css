@@ -1,0 +1,47 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+:root {
+  --bg: #080a0f;
+  --bg2: #0d1017;
+  --surface: #111520;
+  --surface2: #161b27;
+  --surface3: #1c2233;
+  --accent: #4f8ef7;
+  --accent-dim: rgba(79,142,247,0.1);
+  --accent-border: rgba(79,142,247,0.18);
+  --success: #2dd4a0;
+  --success-dim: rgba(45,212,160,0.08);
+  --success-border: rgba(45,212,160,0.18);
+  --warning: #f5a623;
+  --warning-dim: rgba(245,166,35,0.08);
+  --danger: #f76f6f;
+  --danger-dim: rgba(247,111,111,0.08);
+  --danger-border: rgba(247,111,111,0.18);
+  --text: #e8ecf4;
+  --text2: #8b95aa;
+  --text3: #4a5568;
+  --border: rgba(255,255,255,0.055);
+  --border2: rgba(255,255,255,0.09);
+  --radius: 14px;
+  --radius-sm: 9px;
+  --radius-lg: 20px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Bricolage Grotesque', sans-serif;
+  min-height: 100vh;
+  max-width: 430px;
+  margin: 0 auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+button { cursor: pointer; border: none; outline: none; font-family: inherit; }
+input, textarea, select { outline: none; font-family: inherit; }
+
+::-webkit-scrollbar { display: none; }
+* { scrollbar-width: none; }
