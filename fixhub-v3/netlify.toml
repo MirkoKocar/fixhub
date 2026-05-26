@@ -1,7 +1,7 @@
 [build]
   base = "fixhub-v3"
   command = "npm run build"
-  publish = "fixhub-v3/dist"
+  publish = "dist"
 
 [[redirects]]
   from = "/*"
