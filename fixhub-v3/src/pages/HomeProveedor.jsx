@@ -68,3 +68,4 @@ export function HomeProveedor({ user, onLogout }) {
     </div>
   )
 }
+export default HomeProveedor;
