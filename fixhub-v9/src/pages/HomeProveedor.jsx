@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { supabase } from '../supabase'
-import { PalaceFrame, OrnamentLine, DiamondRow, AccentCard, Card, BottomNav, SectionLabel, OrnIcon, AnimCounter } from '../components/Palace'
+import { PalaceFrame, OrnamentLine, DiamondRow, AccentCard, Card, BottomNav, SectionLabel, AnimCounter } from '../components/Palace'
 
 export default function HomeProveedor({ user }) {
   const navigate = useNavigate()
