@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="theme-color" content="#071020" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <title>FixHub</title>
+    <style>
+      /* Centra la app en desktop sin romper fixed elements */
+      html, body { margin: 0; padding: 0; background: #050D1A; height: 100%; }
+      #root {
+        max-width: 430px;
+        margin: 0 auto;
+        min-height: 100%;
+        position: relative;
+        background: #0A1428;
+        box-shadow: 0 0 60px rgba(0,0,0,0.6);
+        overflow-x: hidden;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
