@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { supabase } from '../supabase'
-import { Building2, Plus, ChevronRight, LogOut } from 'lucide-react'
+import { Building2, Plus, ChevronRight, LogOut, DoorOpen } from 'lucide-react'
 
-export default function AdminEdificios({ session, onSelectEdificio, onLogout }) {
+export default function AdminEdificios({ session, onSelectEdificio, onLogout, onSalirDelEdificio }) {
   const { edificios = [], pin } = session
   const [agregando, setAgregando] = useState(false)
   const [codigo, setCodigo] = useState('')
@@ -164,8 +164,15 @@ export default function AdminEdificios({ session, onSelectEdificio, onLogout }) 
           </div>
         )}
 
+        {/* Salir del edificio (sin cerrar sesión real) */}
+        {onSalirDelEdificio && (
+          <button onClick={onSalirDelEdificio} style={{ width: '100%', marginTop: 20, padding: '12px', borderRadius: 999, background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
+            <DoorOpen size={13} strokeWidth={2}/> Salir del edificio (probar otro usuario)
+          </button>
+        )}
+
         {/* Cerrar sesión */}
-        <button onClick={onLogout} style={{ width: '100%', marginTop: 20, padding: '12px', borderRadius: 999, background: 'transparent', border: '1px solid rgba(248,113,113,0.2)', color: 'rgba(248,113,113,0.5)', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
+        <button onClick={onLogout} style={{ width: '100%', marginTop: 10, padding: '12px', borderRadius: 999, background: 'transparent', border: '1px solid rgba(248,113,113,0.2)', color: 'rgba(248,113,113,0.5)', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
           <LogOut size={13} strokeWidth={2}/> Cerrar sesión
         </button>
 
