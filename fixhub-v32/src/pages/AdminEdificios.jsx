@@ -167,7 +167,7 @@ export default function AdminEdificios({ session, onSelectEdificio, onLogout, on
         {/* Salir del edificio (sin cerrar sesión real) */}
         {onSalirDelEdificio && (
           <button onClick={onSalirDelEdificio} style={{ width: '100%', marginTop: 20, padding: '12px', borderRadius: 999, background: 'transparent', border: '1px solid var(--border)', color: 'var(--text-secondary)', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 7 }}>
-            <DoorOpen size={13} strokeWidth={2}/> Salir del edificio (probar otro usuario)
+            <DoorOpen size={13} strokeWidth={2}/> Salir del edificio
           </button>
         )}
 
