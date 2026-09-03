@@ -215,6 +215,16 @@ function AppInner() {
     setShowEdificios(false); setShowWelcome(true)
   }
 
+  // Volver a la pantalla de código SIN cerrar la sesión real (email/contraseña).
+  // Útil para quien prueba varios roles con la misma cuenta — un vecino común
+  // nunca ve este botón, así que no le cambia nada.
+  const handleSalirDelEdificio = () => {
+    localStorage.removeItem(SESSION_KEY)
+    setSession(null)
+    setShowEdificios(false)
+    setShowOnboarding(false)
+  }
+
   const handleSelectEdificio = (edif) => {
     const updated = { ...session, edificio: edif }
     localStorage.setItem(SESSION_KEY, JSON.stringify(updated))
@@ -281,7 +291,7 @@ function AppInner() {
   if (session.rol === 'admin' && showEdificios) return (
     <div className="scroll-content">
       <Suspense fallback={<PageLoader />}>
-        <AdminEdificios session={session} onSelectEdificio={handleSelectEdificio} onLogout={handleLogout} />
+        <AdminEdificios session={session} onSelectEdificio={handleSelectEdificio} onLogout={handleLogout} onSalirDelEdificio={handleSalirDelEdificio} />
       </Suspense>
     </div>
   )
@@ -307,7 +317,7 @@ function AppInner() {
           <Route path="/avisos"     element={<Avisos user={session} />} />
           <Route path="/tablon"     element={<TablonVecino user={session} />} />
           <Route path="/chat/:avisoId" element={<Chat user={session} />} />
-          <Route path="/config"     element={<Configuracion user={session} onLogout={handleLogout} />} />
+          <Route path="/config"     element={<Configuracion user={session} onLogout={handleLogout} onSalirDelEdificio={handleSalirDelEdificio} />} />
           <Route path="/guia"       element={<Onboarding onFinish={() => window.history.back()} />} />
           <Route path="*"           element={<Navigate to="/" />} />
         </Routes>
@@ -331,7 +341,7 @@ function AppInner() {
           <Route path="/admin/actividad"     element={<ActivityLog user={session} />} />
           <Route path="/admin/mas"           element={<AdminMas user={session} />} />
           <Route path="/admin/aviso/:avisoId" element={<Chat user={session} />} />
-          <Route path="/config"              element={<Configuracion user={session} onLogout={handleLogout} />} />
+          <Route path="/config"              element={<Configuracion user={session} onLogout={handleLogout} onSalirDelEdificio={handleSalirDelEdificio} />} />
           <Route path="*"                    element={<Navigate to="/" />} />
         </Routes>
       </AppShell>
@@ -348,7 +358,7 @@ function AppInner() {
           <Route path="/proveedor/chat/:avisoId" element={<Chat user={session} />} />
           <Route path="/proveedor/agenda"      element={<ProveedorAgenda user={session} />} />
           <Route path="/proveedor/historial"   element={<ProveedorHistorial user={session} />} />
-          <Route path="/config"                element={<Configuracion user={session} onLogout={handleLogout} />} />
+          <Route path="/config"                element={<Configuracion user={session} onLogout={handleLogout} onSalirDelEdificio={handleSalirDelEdificio} />} />
           <Route path="*"                      element={<Navigate to="/" />} />
         </Routes>
       </AppShell>
