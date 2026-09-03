@@ -166,7 +166,7 @@ export default function Configuracion({ user, onLogout, onSalirDelEdificio }) {
               marginTop:8, display:'flex', alignItems:'center', justifyContent:'center', gap:8
             }}
           >
-            <DoorOpen size={15} strokeWidth={2}/> Salir del edificio (probar otro usuario)
+            <DoorOpen size={15} strokeWidth={2}/> Salir del edificio
           </button>
         )}
 
