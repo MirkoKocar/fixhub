@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PalaceFrame, PageHeader, Card, AccentCard, OrnamentLine, SectionLabel } from '../components/Palace'
-import { Sun, Moon, Bell, BellOff, LogOut } from 'lucide-react'
+import { Sun, Moon, Bell, BellOff, LogOut, DoorOpen } from 'lucide-react'
 
 const SESSION_KEY = 'fixhub_session_v9'
 
-export default function Configuracion({ user, onLogout }) {
+export default function Configuracion({ user, onLogout, onSalirDelEdificio }) {
   const navigate = useNavigate()
   const [lightMode, setLightMode]   = useState(() => localStorage.getItem('fixhub_lightmode') === 'true')
   const [brightness, setBrightness] = useState(() => parseInt(localStorage.getItem('fixhub_brightness') || '100'))
@@ -155,6 +155,20 @@ export default function Configuracion({ user, onLogout }) {
             ))}
           </div>
         </Card>
+
+        {onSalirDelEdificio && (
+          <button
+            onClick={onSalirDelEdificio}
+            style={{
+              width:'100%', background:'transparent',
+              border:'1px solid var(--border)', borderRadius:999,
+              padding:'14px', fontSize:13, fontWeight:600, color:'var(--text-secondary)',
+              marginTop:8, display:'flex', alignItems:'center', justifyContent:'center', gap:8
+            }}
+          >
+            <DoorOpen size={15} strokeWidth={2}/> Salir del edificio (probar otro usuario)
+          </button>
+        )}
 
         <button
           onClick={handleLogout}
