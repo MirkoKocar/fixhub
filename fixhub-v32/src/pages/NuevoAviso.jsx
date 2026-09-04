@@ -156,29 +156,14 @@ function StepDetalle({ servicio, problema, user, onBack, onSuccess, existingAvis
 
       if (e || !aviso) { setError('No se pudo enviar el aviso. Probá de nuevo.'); setLoading(false); return }
 
-      // Si el vecino eligió avisar también al Tablón, publicamos un anuncio
-      // informativo (una sola vez por reporte, aunque vuelva a guardar el
-      // mismo aviso al editar antes de elegir proveedor).
-      if (avisarTablon && !existingAviso?.publicado_tablon && !esOtro) {
-        const ubicacion = servicio.esDelEdificio ? 'en el edificio' : 'en su departamento'
-        const mensaje = `El vecino del departamento ${user.departamento} reporta este problema ${ubicacion}: "${titulo}". La resolución ya está en curso — este aviso es solo para que estén al tanto, no hace falta que hagan nada.`
-        try {
-          const { data: anuncio } = await supabase.from('anuncios').insert({
-            titulo: `Aviso: ${servicio.id}`, contenido: mensaje, tipo: 'aviso',
-            edificio_id: user.edificio.id, autor: 'Sistema',
-            fecha_publicacion: new Date().toISOString(), notificado: true,
-          }).select().single()
-          if (anuncio) await notifyNuevoAnuncioTablon({ edificioId: user.edificio.id, titulo: anuncio.titulo, tipo: 'aviso' })
-          await supabase.from('avisos').update({ publicado_tablon: true }).eq('id', aviso.id)
-          aviso.publicado_tablon = true
-        } catch (errTablon) {
-          console.error('No se pudo publicar en el tablón:', errTablon)
-          // No bloqueamos el reporte del vecino por esto — el reclamo en sí ya se guardó bien.
-        }
-      }
+      // El aviso al Tablón (si el vecino lo tildó) ya NO se publica acá.
+      // Se publica recién en StepProveedor, cuando el reclamo pasa a estar
+      // realmente en curso (se le asigna un proveedor y se le manda el
+      // primer mensaje) — antes se publicaba apenas se creaba el reporte,
+      // aunque todavía no hubiera nadie trabajando en él.
 
       setLoading(false)
-      onSuccess(aviso, esOtro)
+      onSuccess(aviso, esOtro, avisarTablon)
     } catch (err) {
       setError('No se pudo conectar. Revisá tu conexión e intentá de nuevo.')
       setLoading(false)
@@ -263,7 +248,7 @@ function StepDetalle({ servicio, problema, user, onBack, onSuccess, existingAvis
 }
 
 // STEP 4: elegir proveedor
-function StepProveedor({ aviso, user, categoria, onBack }) {
+function StepProveedor({ aviso, user, categoria, avisarTablon, onBack, onCancelar }) {
   const navigate = useNavigate()
   const { setNavLock } = useContext(NavLockContext)
   const [proveedores, setProveedores] = useState([])
@@ -324,6 +309,28 @@ function StepProveedor({ aviso, user, categoria, onBack }) {
       if (e) throw e
       setNavLock({ locked:false, onBlockedAttempt:null })
       await notifyNuevoAviso({ avisoId: aviso.id, titulo: aviso.titulo, edificioId: user.edificio.id, proveedorId: prov.id })
+
+      // Recién ACÁ el reclamo está de verdad en curso (ya tiene proveedor
+      // asignado y notificado) — por eso el aviso al Tablón se publica en
+      // este momento, y no al crear el reporte.
+      if (avisarTablon && !aviso.publicado_tablon) {
+        const catInfo = SERVICIOS.find(s => s.id === categoria)
+        const ubicacion = catInfo?.esDelEdificio ? 'en el edificio' : 'en su departamento'
+        const mensaje = `El vecino del departamento ${user.departamento} reporta este problema ${ubicacion}: "${aviso.titulo}". La resolución ya está en curso — este aviso es solo para que estén al tanto, no hace falta que hagan nada.`
+        try {
+          const { data: anuncio } = await supabase.from('anuncios').insert({
+            titulo: `Aviso: ${categoria}`, contenido: mensaje, tipo: 'aviso',
+            edificio_id: user.edificio.id, autor: 'Sistema',
+            fecha_publicacion: new Date().toISOString(), notificado: true,
+          }).select().single()
+          if (anuncio) await notifyNuevoAnuncioTablon({ edificioId: user.edificio.id, titulo: anuncio.titulo, tipo: 'aviso' })
+          await supabase.from('avisos').update({ publicado_tablon: true }).eq('id', aviso.id)
+        } catch (errTablon) {
+          console.error('No se pudo publicar en el tablón:', errTablon)
+          // No bloqueamos el flujo del vecino por esto — el proveedor ya quedó asignado bien.
+        }
+      }
+
       navigate(`/chat/${aviso.id}`, { state:{ mensajeInicial: aviso.titulo }, replace:true })
     } catch (err) {
       setErrorSeleccion('No se pudo asignar el proveedor. Probá de nuevo.')
@@ -341,14 +348,14 @@ function StepProveedor({ aviso, user, categoria, onBack }) {
   }
 
   // "Cancelar este reporte" (botón de abajo, es una acción distinta y
-  // explícita): borra el aviso de verdad y te lleva al inicio del reporte.
-  // Navega primero y borra en segundo plano para que se sienta instantáneo,
-  // en vez de dejar a la persona esperando la respuesta del servidor.
+  // explícita): borra el aviso de verdad y resetea el wizard al primer paso.
+  // Antes navegaba a '/aviso', pero como ya estábamos en esa misma ruta,
+  // React no reiniciaba la pantalla — quedaba pegado en este mismo paso.
   const handleCancelar = () => {
     if (cancelando) return
     setCancelando(true)
     setNavLock({ locked:false, onBlockedAttempt:null })
-    navigate('/aviso', { replace:true })
+    onCancelar()
     supabase.from('avisos').delete().eq('id', aviso.id).then(({ error }) => {
       if (error) console.error('No se pudo borrar el aviso cancelado:', error)
     })
@@ -421,6 +428,7 @@ export default function NuevoAviso({ user }) {
   const [servicio, setServicio]   = useState(null)
   const [problema, setProblema]   = useState(null)
   const [avisoCreado, setAvisoCreado] = useState(null)
+  const [avisarTablon, setAvisarTablon] = useState(false)
 
   const handleCategoriaSelect = (s) => {
     setServicio(s)
@@ -433,7 +441,8 @@ export default function NuevoAviso({ user }) {
     setStep(3)
   }
 
-  const handleSuccess = (aviso, esOtro) => {
+  const handleSuccess = (aviso, esOtro, avisarTablonElegido) => {
+    setAvisarTablon(!!avisarTablonElegido)
     if (esOtro) {
       navigate('/avisos')
     } else {
@@ -445,7 +454,7 @@ export default function NuevoAviso({ user }) {
   if (step === 1) return <StepCategoria onSelect={handleCategoriaSelect} />
   if (step === 2) return <StepProblema servicio={servicio} onSelect={handleProblemaSelect} onBack={() => setStep(1)} />
   if (step === 3) return <StepDetalle servicio={servicio} problema={problema} user={user} existingAviso={avisoCreado} onBack={() => servicio.esOtro ? setStep(1) : setStep(2)} onSuccess={handleSuccess} />
-  if (step === 4) return <StepProveedor aviso={avisoCreado} user={user} categoria={servicio.id} onBack={() => setStep(3)} />
+  if (step === 4) return <StepProveedor aviso={avisoCreado} user={user} categoria={servicio.id} avisarTablon={avisarTablon} onBack={() => setStep(3)} onCancelar={() => { setServicio(null); setProblema(null); setAvisoCreado(null); setStep(1) }} />
 
   return null
 }
